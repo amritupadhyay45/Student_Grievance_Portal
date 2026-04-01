@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'https://student-grievance-portal-g8ht.onrender.com';
+const API_BASE = process.env.REACT_APP_API_URL || 'https://student-grievance-portal-g8ht.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE,
