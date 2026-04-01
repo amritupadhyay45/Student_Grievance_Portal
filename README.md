@@ -1,10 +1,3 @@
-/*Demo Credentials
-
-Admin: admin@grievanceportal.com / admin123
-Staff: staff@grievanceportal.com / staff123
-Student: student@grievanceportal.com / student123*/
-
-user=student_portal
 
 
 # Student Grievance Portal
