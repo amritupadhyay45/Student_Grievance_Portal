@@ -3,6 +3,7 @@ const Complaint = require('../models/Complaint');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const { sendEmail, emailTemplates } = require('../utils/email');
+const { computeSlaDeadline } = require('../utils/sla');
 
 // Helper: notify hostel wardens & caretakers when a hostel complaint/request is created
 const notifyHostelStaff = async (subject, itemId, itemType) => {
@@ -37,6 +38,7 @@ const createComplaint = async (req, res) => {
     }
 
     const { category, subject, description, priority } = req.body;
+    const isAnonymous = req.body.isAnonymous === 'true' || req.body.isAnonymous === true;
 
     const complaint = await Complaint.create({
       student: req.user._id,
@@ -44,6 +46,8 @@ const createComplaint = async (req, res) => {
       subject,
       description,
       priority: priority || 'medium',
+      isAnonymous,
+      slaDeadline: computeSlaDeadline(category),
       attachments: req.files
         ? req.files.map((f) => ({ filename: f.originalname, path: f.path }))
         : [],
@@ -90,7 +94,7 @@ const getComplaints = async (req, res) => {
       // Warden/caretaker see hostel complaints only
       filter.category = 'hostel';
     }
-    // Admin sees all
+    // admin, hod, bsa, bca, security, others see all
 
     if (status) filter.status = status;
     if (category) filter.category = category;
@@ -110,9 +114,20 @@ const getComplaints = async (req, res) => {
       .skip(skip)
       .limit(Number(limit));
 
+    // Mask student identity for anonymous complaints when viewer is not admin
+    const viewerRole = req.user.role;
+    const viewerId = req.user._id.toString();
+    const sanitised = complaints.map((c) => {
+      const obj = c.toObject();
+      if (obj.isAnonymous && viewerRole !== 'admin' && obj.student?._id?.toString() !== viewerId) {
+        obj.student = { name: 'Anonymous', email: '—', rollNumber: '—', department: '—' };
+      }
+      return obj;
+    });
+
     res.json({
       success: true,
-      data: complaints,
+      data: sanitised,
       total,
       page: Number(page),
       pages: Math.ceil(total / Number(limit)),
@@ -167,7 +182,14 @@ const getComplaint = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
 
-    res.json({ success: true, data: complaint });
+    // Mask student identity for anonymous complaints (non-admin, non-owner)
+    const obj = complaint.toObject();
+    const isOwner = obj.student?._id?.toString() === req.user._id.toString();
+    if (obj.isAnonymous && req.user.role !== 'admin' && !isOwner) {
+      obj.student = { name: 'Anonymous', email: '—', rollNumber: '—', department: '—' };
+    }
+
+    res.json({ success: true, data: obj });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
@@ -189,7 +211,7 @@ const updateComplaintStatus = async (req, res) => {
       (req.user.role === 'warden' || req.user.role === 'caretaker') &&
       complaint.category !== 'hostel'
     ) {
-      return res.status(403).json({ success: false, message: 'Not authorized' });
+      return res.status(403).json({ success: false, message: 'Not authorized to update non-hostel complaints' });
     }
 
     complaint.status = status;

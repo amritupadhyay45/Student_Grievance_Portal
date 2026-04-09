@@ -3,7 +3,7 @@ import { adminService } from '../../services/endpoints';
 import { toast } from 'react-toastify';
 import { FiPlus, FiSearch } from 'react-icons/fi';
 
-const ROLES = ['', 'student', 'admin', 'staff', 'parent'];
+const ROLES = ['', 'student', 'admin', 'staff', 'parent', 'warden', 'caretaker', 'hod', 'bsa', 'bca', 'security', 'others'];
 
 const UsersManagement = () => {
   const [users, setUsers] = useState([]);
@@ -172,9 +172,18 @@ const UsersManagement = () => {
                   <label className="form-label">Role</label>
                   <select className="form-input" value={newUser.role}
                     onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
-                    <option value="staff">Staff</option>
-                    <option value="admin">Admin</option>
                     <option value="student">Student</option>
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                    <option value="parent">Parent</option>
+                    <option value="warden">Warden</option>
+                    <option value="caretaker">Caretaker</option>
+                    <option value="hod">HOD</option>
+                    <option value="bsa">BSA</option>
+                    <option value="bca">BCA</option>
+                    <option value="security">Security</option>
+                    <option value="others">Others</option>
+
                   </select>
                 </div>
                 <div className="form-group">

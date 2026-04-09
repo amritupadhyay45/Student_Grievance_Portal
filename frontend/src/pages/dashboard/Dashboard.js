@@ -11,8 +11,13 @@ const Dashboard = () => {
     case 'admin': return <AdminDashboard />;
     case 'staff': return <StaffDashboard />;
     case 'parent': return <ParentDashboard />;
-    case 'warden': return <StaffDashboard />;
-    case 'caretaker': return <StaffDashboard />;
+    case 'warden':
+    case 'caretaker':
+    case 'hod':
+    case 'bsa':
+    case 'bca':
+    case 'security':
+    case 'others': return <StaffDashboard />;
     default: return <StudentDashboard />;
   }
 };

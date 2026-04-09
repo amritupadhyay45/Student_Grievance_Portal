@@ -89,6 +89,7 @@ const getRequests = async (req, res) => {
     } else if (req.user.role === 'warden' || req.user.role === 'caretaker') {
       filter.type = 'hostel';
     }
+    // admin, hod, bsa, bca, security, others see all
 
     if (status) filter.status = status;
     if (type) filter.type = type;

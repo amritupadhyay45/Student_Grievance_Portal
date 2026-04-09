@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { complaintService, adminService } from '../../services/endpoints';
 import StatusBadge from '../../components/shared/StatusBadge';
+import { getSlaInfo } from '../../utils/sla';
 import { toast } from 'react-toastify';
-import { FiArrowLeft, FiSend, FiUpload, FiStar } from 'react-icons/fi';
+import { FiArrowLeft, FiSend, FiUpload, FiStar, FiClock } from 'react-icons/fi';
 
 const StarRating = ({ value, onChange, readonly }) => (
   <div className="star-rating">
@@ -20,6 +21,17 @@ const StarRating = ({ value, onChange, readonly }) => (
     ))}
   </div>
 );
+
+const SlaBadge = ({ complaint }) => {
+  const sla = getSlaInfo(complaint);
+  if (!sla) return null;
+  return (
+    <span className={`sla-badge ${sla.overdue ? 'sla-badge--overdue' : 'sla-badge--ok'}`}>
+      <FiClock style={{ marginRight: 4 }} />
+      {sla.label}
+    </span>
+  );
+};
 
 const ComplaintDetail = () => {
   const { id } = useParams();
@@ -127,7 +139,7 @@ const ComplaintDetail = () => {
   if (loading) return <div className="loading"><div className="spinner" /></div>;
   if (!complaint) return null;
 
-  const canManage = ['admin', 'staff', 'warden', 'caretaker'].includes(user?.role);
+  const canManage = ['admin', 'staff', 'warden', 'caretaker', 'hod', 'bsa', 'bca', 'security', 'others'].includes(user?.role);
   const canRate = user?.role === 'student' &&
     complaint.status === 'resolved' && !complaint.rating?.score;
 
@@ -146,17 +158,27 @@ const ComplaintDetail = () => {
               &nbsp;·&nbsp; Submitted: <strong>{new Date(complaint.createdAt).toLocaleDateString()}</strong>
             </p>
           </div>
-          <StatusBadge status={complaint.status} />
+          <div className="detail-header__badges">
+            <StatusBadge status={complaint.status} />
+            <SlaBadge complaint={complaint} />
+            {complaint.isAnonymous && (
+              <span className="anon-badge">Anonymous</span>
+            )}
+          </div>
         </div>
 
         <div className="detail-grid">
           <div className="detail-field">
             <span className="detail-label">Student</span>
-            <span>{complaint.student?.name} ({complaint.student?.rollNumber || 'N/A'})</span>
+            <span>
+              {complaint.isAnonymous
+                ? <span className="anon-badge">Anonymous</span>
+                : <>{complaint.student?.name} ({complaint.student?.rollNumber || 'N/A'})</>}
+            </span>
           </div>
           <div className="detail-field">
             <span className="detail-label">Email</span>
-            <span>{complaint.student?.email}</span>
+            <span>{complaint.isAnonymous ? '—' : complaint.student?.email}</span>
           </div>
           <div className="detail-field">
             <span className="detail-label">Department</span>
@@ -176,6 +198,12 @@ const ComplaintDetail = () => {
             <span className="detail-label">Last Updated</span>
             <span>{new Date(complaint.updatedAt).toLocaleDateString()}</span>
           </div>
+          {complaint.slaDeadline && (
+            <div className="detail-field">
+              <span className="detail-label">SLA Deadline</span>
+              <span>{new Date(complaint.slaDeadline).toLocaleDateString()} {new Date(complaint.slaDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          )}
         </div>
 
         <div className="form-group" style={{ marginTop: '1.5rem' }}>
@@ -262,14 +290,14 @@ const ComplaintDetail = () => {
       {/* Admin: Assign to Staff */}
       {user?.role === 'admin' && (
         <div className="card">
-          <h3 className="card__title">Assign to Staff</h3>
+          <h3 className="card__title">Assign to </h3>
           <form onSubmit={handleAssign} className="form-row">
             <select
               className="form-input"
               value={assignStaffId}
               onChange={(e) => setAssignStaffId(e.target.value)}
             >
-              <option value="">Select Staff Member</option>
+              <option value="">Select Member</option>
               {staffList.map((s) => (
                 <option key={s._id} value={s._id}>{s.name} — {s.role} {s.department ? `(${s.department})` : ''}</option>
               ))}

@@ -28,7 +28,7 @@ router
     upload.array('attachments', 3),
     [
       body('category')
-        .isIn(['mess', 'classroom', 'hostel', 'campus', 'ground', 'medical_aid_centre'])
+        .isIn(['department', 'mess', 'classroom', 'hostel', 'campus', 'ground', 'medical_aid_centre', 'security', 'others'])
         .withMessage('Valid category is required'),
       body('subject').trim().notEmpty().withMessage('Subject is required'),
       body('description').trim().notEmpty().withMessage('Description is required'),
@@ -41,7 +41,7 @@ router.get('/:id', getComplaint);
 // Status update with optional evidence file
 router.put(
   '/:id/status',
-  authorize('admin', 'staff', 'warden', 'caretaker'),
+  authorize('admin', 'staff', 'warden', 'caretaker', 'hod', 'bsa', 'bca', 'security', 'others'),
   upload.single('evidenceFile'),
   updateComplaintStatus
 );

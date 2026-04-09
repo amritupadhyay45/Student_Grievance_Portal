@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { complaintService } from '../../services/endpoints';
 import StatusBadge from '../../components/shared/StatusBadge';
-import { FiSearch, FiPlus } from 'react-icons/fi';
+import { getSlaInfo } from '../../utils/sla';
+import { FiSearch, FiPlus, FiClock } from 'react-icons/fi';
 
 const CATEGORIES = ['', 'mess', 'classroom', 'hostel', 'campus', 'ground', 'medical_aid_centre'];
 const STATUSES = ['', 'pending', 'in_progress', 'resolved', 'rejected'];
@@ -101,6 +102,7 @@ const ComplaintsList = () => {
                     <th>Category</th>
                     <th>Priority</th>
                     <th>Status</th>
+                    <th>SLA</th>
                     <th>Assigned To</th>
                     <th>Date</th>
                     <th>Action</th>
@@ -112,7 +114,11 @@ const ComplaintsList = () => {
                       <td>{(page - 1) * 10 + i + 1}</td>
                       <td>{c.subject}</td>
                       {(user?.role === 'admin' || user?.role === 'staff') && (
-                        <td>{c.student?.name}</td>
+                        <td>
+                          {c.isAnonymous
+                            ? <span className="anon-badge">Anonymous</span>
+                            : c.student?.name}
+                        </td>
                       )}
                       <td className="capitalize">{c.category.replace('_', ' ')}</td>
                       <td>
@@ -121,6 +127,18 @@ const ComplaintsList = () => {
                         </span>
                       </td>
                       <td><StatusBadge status={c.status} /></td>
+                      <td>
+                        {(() => {
+                          const sla = getSlaInfo(c);
+                          if (!sla) return <span className="text-muted">—</span>;
+                          return (
+                            <span className={`sla-badge sla-badge--sm ${sla.overdue ? 'sla-badge--overdue' : 'sla-badge--ok'}`}>
+                              <FiClock style={{ marginRight: 3 }} />
+                              {sla.label}
+                            </span>
+                          );
+                        })()}
+                      </td>
                       <td>{c.assignedTo?.name || '—'}</td>
                       <td>{new Date(c.createdAt).toLocaleDateString()}</td>
                       <td>

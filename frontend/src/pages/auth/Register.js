@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 const DEPARTMENTS = [
   'Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Chemical',
-  'Physics', 'Mathematics', 'Administration', 'Other',
+  'Physics', 'Electrical', 'Bio-tech', 'Mathematics', 'Administration', 'Other',
 ];
 
 const Register = () => {

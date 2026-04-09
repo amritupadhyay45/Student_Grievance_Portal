@@ -38,6 +38,31 @@ const navByRole = {
     { to: '/complaints', icon: <FiAlertCircle />, label: 'Hostel Complaints' },
     { to: '/requests', icon: <FiFileText />, label: 'Hostel Requests' },
   ],
+  hod: [
+    { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
+    { to: '/complaints', icon: <FiAlertCircle />, label: 'All Complaints' },
+    { to: '/requests', icon: <FiFileText />, label: 'All Requests' },
+  ],
+  bsa: [
+    { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
+    { to: '/complaints', icon: <FiAlertCircle />, label: 'All Complaints' },
+    { to: '/requests', icon: <FiFileText />, label: 'All Requests' },
+  ],
+  bca: [
+    { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
+    { to: '/complaints', icon: <FiAlertCircle />, label: 'All Complaints' },
+    { to: '/requests', icon: <FiFileText />, label: 'All Requests' },
+  ],
+  security: [
+    { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
+    { to: '/complaints', icon: <FiAlertCircle />, label: 'All Complaints' },
+    { to: '/requests', icon: <FiFileText />, label: 'All Requests' },
+  ],
+  others: [
+    { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
+    { to: '/complaints', icon: <FiAlertCircle />, label: 'All Complaints' },
+    { to: '/requests', icon: <FiFileText />, label: 'All Requests' },
+  ],
 };
 
 const Sidebar = ({ isOpen, onClose }) => {

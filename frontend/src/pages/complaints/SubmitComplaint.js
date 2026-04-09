@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { complaintService } from '../../services/endpoints';
+import { complaintService, aiService } from '../../services/endpoints';
 import { toast } from 'react-toastify';
 
 const CATEGORIES = [
@@ -15,12 +15,44 @@ const CATEGORIES = [
 const SubmitComplaint = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    category: '', subject: '', description: '', priority: 'medium',
+    category: '', subject: '', description: '', priority: 'medium', isAnonymous: false,
   });
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
+  };
+
+  const handleAnalyze = async () => {
+    if (form.description.trim().length < 20) {
+      toast.warn('Write at least 20 characters in the description for AI analysis.');
+      return;
+    }
+    setAiLoading(true);
+    setAiSuggestion(null);
+    try {
+      const res = await aiService.analyze(form.subject, form.description);
+      setAiSuggestion(res.data.data);
+    } catch {
+      toast.error('AI analysis failed. Please try again.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applyAiSuggestion = () => {
+    if (!aiSuggestion) return;
+    setForm((prev) => ({
+      ...prev,
+      category: aiSuggestion.category || prev.category,
+      priority: aiSuggestion.priority || prev.priority,
+    }));
+    toast.success('AI suggestions applied!');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,6 +127,72 @@ const SubmitComplaint = () => {
             <span className="form-hint">{form.description.length}/2000 characters</span>
           </div>
 
+          {/* AI Smart Analyzer */}
+          <div className="ai-analyzer">
+            <button
+              type="button"
+              className="btn btn--ai"
+              onClick={handleAnalyze}
+              disabled={aiLoading || form.description.trim().length < 20}
+            >
+              {aiLoading ? (
+                <><span className="ai-spinner" /> Analyzing...</>
+              ) : (
+                <> Analyze with AI</>
+              )}
+            </button>
+
+            {aiSuggestion && (
+              <div className="ai-suggestion-card">
+                <div className="ai-suggestion-card__header">
+                  <span className="ai-badge">AI Suggestions</span>
+                  <span className="ai-source">
+                    {aiSuggestion.source === 'gemini' ? 'Powered by Gemini AI' : 'Smart Analysis'}
+                  </span>
+                </div>
+
+                <div className="ai-suggestion-card__body">
+                  <div className="ai-row">
+                    <span className="ai-label">Category</span>
+                    <span className="ai-value ai-value--category">
+                      {aiSuggestion.category.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                  <div className="ai-row">
+                    <span className="ai-label">Priority</span>
+                    <span className={`ai-value ai-value--priority ai-value--${aiSuggestion.priority}`}>
+                      {aiSuggestion.priority}
+                    </span>
+                  </div>
+                  <div className="ai-row">
+                    <span className="ai-label">Sentiment</span>
+                    <span className="ai-value">{aiSuggestion.sentiment}</span>
+                  </div>
+                  {aiSuggestion.summary && (
+                    <div className="ai-row ai-row--summary">
+                      <span className="ai-label">Summary</span>
+                      <span className="ai-value ai-value--summary">{aiSuggestion.summary}</span>
+                    </div>
+                  )}
+                  {aiSuggestion.keywords?.length > 0 && (
+                    <div className="ai-row">
+                      <span className="ai-label">Keywords</span>
+                      <span className="ai-keywords">
+                        {aiSuggestion.keywords.map((kw) => (
+                          <span key={kw} className="ai-keyword-tag">{kw}</span>
+                        ))}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <button type="button" className="btn btn--ai-apply" onClick={applyAiSuggestion}>
+                  Apply Suggestions
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="form-group">
             <label className="form-label">Attachments (optional, max 3 files, 5MB each)</label>
             <input
@@ -107,6 +205,19 @@ const SubmitComplaint = () => {
               </ul>
             )}
           </div>
+
+          <label className="anonymous-toggle">
+            <input
+              type="checkbox"
+              name="isAnonymous"
+              checked={form.isAnonymous}
+              onChange={handleChange}
+            />
+            <span className="anonymous-toggle__text">
+              Submit anonymously
+              <span className="anonymous-toggle__hint">Your name will be hidden from staff. The system still records your identity for security.</span>
+            </span>
+          </label>
 
           <div className="form-actions">
             <button type="button" className="btn btn--outline" onClick={() => navigate('/complaints')}>

@@ -133,7 +133,7 @@ const getDashboardStats = async (req, res) => {
 const getStaffList = async (req, res) => {
   try {
     const staff = await User.find(
-      { role: { $in: ['staff', 'warden', 'caretaker'] }, isActive: true },
+      { role: { $in: ['staff', 'warden', 'caretaker', 'hod', 'bsa', 'bca', 'security', 'others'] }, isActive: true },
       'name email department role hostelBlock'
     );
     res.json({ success: true, data: staff });

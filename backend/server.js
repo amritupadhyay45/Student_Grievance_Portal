@@ -15,7 +15,20 @@ const seedAdmin = require('./utils/seedAdmin');
 const app = express();
 
 // Middleware
+<<<<<<< HEAD
 app.use(cors({ origin: process.env.CLIENT_URL || 'https://student-grievance-portal-frontend.onrender.com', credentials: true }));
+=======
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
+  .split(',').map((o) => o.trim());
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS blocked: ${origin}`));
+  },
+  credentials: true,
+}));
+>>>>>>> 391f2f4 (added AI features, updated backend & frontend)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -28,6 +41,7 @@ app.use('/api/complaints', require('./routes/complaints'));
 app.use('/api/requests', require('./routes/requests'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Health check
 app.get('/api/health', (req, res) => {

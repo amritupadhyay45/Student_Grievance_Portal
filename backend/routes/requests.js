@@ -23,7 +23,7 @@ router
     upload.array('attachments', 3),
     [
       body('type')
-        .isIn(['mess', 'hostel', 'ground', 'medical_aid_centre', 'classroom', 'campus', 'canteen', 'others'])
+        .isIn(['department','mess', 'hostel', 'ground', 'medical_aid_centre', 'classroom', 'campus', 'canteen', 'security', 'others'])
         .withMessage('Valid request type is required'),
       body('subject').trim().notEmpty().withMessage('Subject is required'),
       body('description').trim().notEmpty().withMessage('Description is required'),
@@ -36,7 +36,7 @@ router.get('/:id', getRequest);
 // Status update with optional evidence file
 router.put(
   '/:id/status',
-  authorize('admin', 'staff', 'warden', 'caretaker'),
+  authorize('admin', 'staff', 'warden', 'caretaker', 'hod', 'bsa', 'bca', 'security', 'others'),
   upload.single('evidenceFile'),
   updateRequestStatus
 );

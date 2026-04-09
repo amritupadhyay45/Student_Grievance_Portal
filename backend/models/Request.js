@@ -13,6 +13,7 @@ const requestSchema = new mongoose.Schema(
       enum: [
         'mess',
         'hostel',
+        'department',
         'ground',
         'medical_aid_centre',
         'classroom',

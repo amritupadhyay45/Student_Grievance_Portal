@@ -10,7 +10,7 @@ const complaintSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, 'Category is required'],
-      enum: ['mess', 'classroom', 'hostel', 'campus', 'ground', 'medical_aid_centre'],
+      enum: ['department','mess', 'classroom', 'hostel', 'campus', 'ground', 'medical_aid_centre', 'others'],
     },
     subject: {
       type: String,
@@ -74,14 +74,29 @@ const complaintSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+    // ── SLA (Service Level Agreement) ─────────────────────────
+    slaDeadline: {
+      type: Date,
+    },
+    // ── Anonymous submission ──────────────────────────────────
+    isAnonymous: {
+      type: Boolean,
+      default: false,
+    },
     // ── Future Smart Features (stubs) ────────────────────────────
     // upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    // slaDeadline: Date,
     // escalatedAt: Date,
     // autoRouted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+// isOverdue is computed at serialisation time so it is always current
+complaintSchema.virtual('isOverdue').get(function () {
+  if (!this.slaDeadline) return false;
+  if (['resolved', 'rejected'].includes(this.status)) return false;
+  return new Date() > this.slaDeadline;
+});
 
 // Index for faster queries
 complaintSchema.index({ student: 1, status: 1 });

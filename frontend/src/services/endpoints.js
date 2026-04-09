@@ -48,3 +48,8 @@ export const notificationService = {
   markRead: (id) => api.put(`/notifications/${id}/read`),
   markAllRead: () => api.put('/notifications/read-all'),
 };
+
+export const aiService = {
+  analyze: (subject, description) => api.post('/ai/analyze', { subject, description }),
+  chat: (message, history) => api.post('/ai/chat', { message, history }),
+};
