@@ -14,10 +14,9 @@ const seedAdmin = require('./utils/seedAdmin');
 
 const app = express();
 
-// Middleware
-<<<<<<< HEAD
+// Middlewar
 app.use(cors({ origin: process.env.CLIENT_URL || 'https://student-grievance-portal-frontend.onrender.com', credentials: true }));
-=======
+
 const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:3000')
   .split(',').map((o) => o.trim());
 app.use(cors({
@@ -28,7 +27,7 @@ app.use(cors({
   },
   credentials: true,
 }));
->>>>>>> 391f2f4 (added AI features, updated backend & frontend)
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
