@@ -156,7 +156,6 @@ const ChatBot = () => {
     }, 14);
 
     return () => clearInterval(animRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
   // ── Scroll to bottom on new message or animation frame ───────────────────
@@ -179,7 +178,7 @@ const ChatBot = () => {
     const left = Math.max(12, w - defaultWidth - 28);
     const top = Math.max(48, h - defaultHeight - 120);
     setPos({ left, top });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [open]);
 
   // ── Drag: store latest handler in ref to avoid stale closures ───────────
