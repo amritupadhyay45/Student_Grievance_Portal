@@ -84,7 +84,7 @@ const Register = () => {
             <label className="form-label">Email Address *</label>
             <input
               type="email" name="email" className="form-input"
-              placeholder="you@example.com" value={form.email} onChange={handleChange} required
+              placeholder="student@example.com" value={form.email} onChange={handleChange} required
             />
           </div>
 
