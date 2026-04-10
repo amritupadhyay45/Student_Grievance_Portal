@@ -46,7 +46,7 @@ const Login = () => {
               type="email"
               name="email"
               className="form-input"
-              placeholder="amrit@example.com"
+              placeholder="student@example.com"
               value={form.email}
               onChange={handleChange}
               required
