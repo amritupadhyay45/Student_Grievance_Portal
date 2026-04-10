@@ -68,7 +68,7 @@ const Register = () => {
               <label className="form-label">Full Name *</label>
               <input
                 type="text" name="name" className="form-input"
-                placeholder="John Doe" value={form.name} onChange={handleChange} required
+                placeholder="your name" value={form.name} onChange={handleChange} required
               />
             </div>
             <div className="form-group">
